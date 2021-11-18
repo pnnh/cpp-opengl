@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(cpp-opengl VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+find_package(glfw3 REQUIRED)
+find_package(GLEW REQUIRED)
+
+# find OpenGL
+find_package(OpenGL REQUIRED)
+include_directories(${OpenGL_INCLUDE_DIRS})
+link_directories(${OpenGL_LIBRARY_DIRS})
+add_definitions(${OpenGL_DEFINITIONS})
+if(NOT OPENGL_FOUND)
+    message(ERROR " OPENGL not found!")
+endif(NOT OPENGL_FOUND)
+
+add_subdirectory(examples/hello)
