@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "debug.h"
+#include "file.h"
 
 using namespace std;
 
@@ -11,17 +12,22 @@ GLuint renderingProgram;
 GLuint vao[numVAOs];
 
 GLuint createShaderProgram() {
-    const char *vshaderSource =
-            "#version 430 \n"
-            "void main(void) \n"
-            "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+//    const char *vshaderSource =
+//            "#version 430 \n"
+//            "void main(void) \n"
+//            "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+//
+//    const char *fshaderSource =
+//            "#version 430 \n"
+//            "out vec4 color; \n"
+//            "void main(void) \n"
+//            "{ if (gl_FragCoord.x < 300) color = vec4(1.0, 0.0, 0.0, 1.0); \n"
+//            " else color = vec4(0.0, 1.0, 0.0, 1.0); }";
+    string vertShaderStr = readShaderSource("vertShader.glsl");
+    string fragShaderStr = readShaderSource("fragShader.glsl");
 
-    const char *fshaderSource =
-            "#version 430 \n"
-            "out vec4 color; \n"
-            "void main(void) \n"
-            "{ if (gl_FragCoord.x < 300) color = vec4(1.0, 0.0, 0.0, 1.0); \n"
-            " else color = vec4(0.0, 1.0, 0.0, 1.0); }";
+    const char *vertShaderSrc = vertShaderStr.c_str();
+    const char *fragShaderSrc = fragShaderStr.c_str();
 
     GLint vertCompiled;
     GLint fragCompiled;
@@ -30,8 +36,8 @@ GLuint createShaderProgram() {
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    glShaderSource(vShader, 1, &vshaderSource, NULL);
-    glShaderSource(fShader, 1, &fshaderSource, NULL);
+    glShaderSource(vShader, 1, &vertShaderSrc, NULL);
+    glShaderSource(fShader, 1, &fragShaderSrc, NULL);
 
     glCompileShader(vShader);
     checkOpenGLError();
