@@ -19,3 +19,4 @@ add_definitions(${OpenGL_DEFINITIONS})
 
 add_subdirectory(examples/hello)
 add_subdirectory(examples/point)
+add_subdirectory(examples/cube)
