@@ -81,7 +81,7 @@ void display(GLFWwindow* window, double currentTime) {
 
     // 将VBO关联给顶点着色器中相应的顶点属性
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_POINT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
     // 调整OpenGL设置，绘制模型
