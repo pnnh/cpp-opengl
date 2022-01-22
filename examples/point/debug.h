@@ -11,6 +11,7 @@
 
 using namespace std;
 
+GLuint createShaderProgram(string vertShader, string fragShader);
 void printShaderLog(GLuint shader);
 
 void printProgramLog(int prog);

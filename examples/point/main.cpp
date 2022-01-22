@@ -11,65 +11,8 @@ using namespace std;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 
-GLuint createShaderProgram() {
-//    const char *vshaderSource =
-//            "#version 430 \n"
-//            "void main(void) \n"
-//            "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
-//
-//    const char *fshaderSource =
-//            "#version 430 \n"
-//            "out vec4 color; \n"
-//            "void main(void) \n"
-//            "{ if (gl_FragCoord.x < 300) color = vec4(1.0, 0.0, 0.0, 1.0); \n"
-//            " else color = vec4(0.0, 1.0, 0.0, 1.0); }";
-    string vertShaderStr = readShaderSource("vertShader.glsl");
-    string fragShaderStr = readShaderSource("fragShader.glsl");
-
-    const char *vertShaderSrc = vertShaderStr.c_str();
-    const char *fragShaderSrc = fragShaderStr.c_str();
-
-    GLint vertCompiled;
-    GLint fragCompiled;
-    GLint linked;
-
-    GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(vShader, 1, &vertShaderSrc, NULL);
-    glShaderSource(fShader, 1, &fragShaderSrc, NULL);
-
-    glCompileShader(vShader);
-    checkOpenGLError();
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &vertCompiled);
-    if (vertCompiled != 1) {
-        cout << "vertex compilation failed" << endl;
-        printShaderLog(vShader);
-    }
-    glCompileShader(fShader);
-    checkOpenGLError();
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
-    if (fragCompiled != 1) {
-        cout << "fragment compilation failed" << endl;
-        printShaderLog(fShader);
-    }
-
-    GLuint vfProgram = glCreateProgram();
-    glAttachShader(vfProgram, vShader);
-    glAttachShader(vfProgram, fShader);
-    glLinkProgram(vfProgram);
-    checkOpenGLError();
-    glGetProgramiv(vfProgram, GL_LINK_STATUS, &linked);
-    if (linked != 1) {
-        cout << "linking failed" << endl;
-        printProgramLog(vfProgram);
-    }
-
-    return vfProgram;
-}
-
 void init(GLFWwindow* window) {
-    renderingProgram = createShaderProgram();
+    renderingProgram = createShaderProgram("vertShader.glsl", "fragShader.glsl");
     glGenVertexArrays(numVAOs, vao);
     glBindVertexArray(vao[0]);
 }

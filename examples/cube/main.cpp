@@ -41,7 +41,7 @@ void setupVertices(void) {
             -1.0f,1.0f,-1.0f,1.0f,1.0f,-1.0f,1.0f,1.0f,1.0f,
             1.0f,1.0f,1.0f,-1.0f,1.0f,1.0f,-1.0f,1.0f,-1.0f
     };
-    glGenVertexArrays(1, vao);
+    glGenVertexArrays(numVAOs, vao);
     glBindVertexArray(vao[0]);
     glGenBuffers(numVBOs, vbo);
 

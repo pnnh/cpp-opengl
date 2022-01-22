@@ -3,6 +3,53 @@
 //
 
 #include "debug.h"
+#include "file.h"
+
+GLuint  createShaderProgram(string vertShader, string fragShader) {
+    string vertShaderStr = readShaderSource(vertShader.c_str());
+    string fragShaderStr = readShaderSource(fragShader.c_str());
+
+    const char *vertShaderSrc = vertShaderStr.c_str();
+    const char *fragShaderSrc = fragShaderStr.c_str();
+
+    GLint vertCompiled;
+    GLint fragCompiled;
+    GLint linked;
+
+    GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    glShaderSource(vShader, 1, &vertShaderSrc, NULL);
+    glShaderSource(fShader, 1, &fragShaderSrc, NULL);
+
+    glCompileShader(vShader);
+    checkOpenGLError();
+    glGetShaderiv(vShader, GL_COMPILE_STATUS, &vertCompiled);
+    if (vertCompiled != 1) {
+        cout << "vertex compilation failed" << endl;
+        printShaderLog(vShader);
+    }
+    glCompileShader(fShader);
+    checkOpenGLError();
+    glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
+    if (fragCompiled != 1) {
+        cout << "fragment compilation failed" << endl;
+        printShaderLog(fShader);
+    }
+
+    GLuint vfProgram = glCreateProgram();
+    glAttachShader(vfProgram, vShader);
+    glAttachShader(vfProgram, fShader);
+    glLinkProgram(vfProgram);
+    checkOpenGLError();
+    glGetProgramiv(vfProgram, GL_LINK_STATUS, &linked);
+    if (linked != 1) {
+        cout << "linking failed" << endl;
+        printProgramLog(vfProgram);
+    }
+
+    return vfProgram;
+}
 
 void printShaderLog(GLuint shader) {
     int len = 0;
