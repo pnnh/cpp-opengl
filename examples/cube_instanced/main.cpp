@@ -20,11 +20,10 @@ GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
 // 分配在display() 函数中使用的变量空间，这样它们就不必在渲染过程中分配
-GLuint mvLoc, projLoc;
+GLuint mLoc, vLoc, projLoc, tfLoc;
 int width, height;
-float aspect;
-glm::mat4 pMat, vMat, mMat, mvMat;
-glm::mat4 tMat, rMat;
+float aspect, timeFactor;
+glm::mat4 pMat, vMat, mMat;
 
 // 36个定点，12个三角形，组成了放置在原点处的2*2*2立方体
 void setupVertices(void) {
@@ -58,17 +57,6 @@ void init(GLFWwindow *window) {
     cubeLocX = 0.0f;
     cubeLocY = -2.0f;
     cubeLocZ = 0.0f;
-    setupVertices();
-}
-
-void display(GLFWwindow *window, double currentTime) {
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(renderingProgram);
-
-    // 获取MV矩阵和投影矩阵的统一变量
-    mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
-    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
     // 构建透视矩阵
     glfwGetFramebufferSize(window, &width, &height);
@@ -76,16 +64,34 @@ void display(GLFWwindow *window, double currentTime) {
     // 1.0472 radians = 60 degree
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 
-    // 构建视图矩阵、模型矩阵和视图-模型矩阵
+    setupVertices();
+}
+
+void window_size_callback(GLFWwindow *window, int width, int height) {
+    aspect = (float) width / (float) height;
+    glViewport(0, 0, width, height);
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+}
+
+void display(GLFWwindow *window, double currentTime) {
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(renderingProgram);
+
+    // 获取模型矩阵、视图矩阵和投影矩阵的统一变量
+    vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
+    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+
+    // 构建MV矩阵，其中mMat的计算被移动到顶点着色器中了，在C++中不再需要构建MV矩阵
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
 
-    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-
-    mvMat = vMat * mMat;
-
-    // 将透视矩阵和MV矩阵复制给相应的统一变量
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+    // 着色器需要视图矩阵的统一变量
+    glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+
+    timeFactor = ((float) currentTime);  // 获得时间因子信息
+    tfLoc = glGetUniformLocation(renderingProgram, "tf");  // 着色器需要时间因子信息
+    glUniform1f(tfLoc, (float) timeFactor);
 
     // 将VBO关联给顶点着色器中相应的顶点属性
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -95,7 +101,9 @@ void display(GLFWwindow *window, double currentTime) {
     // 调整OpenGL设置，绘制模型
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+
 }
 
 
@@ -111,6 +119,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     glfwSwapInterval(1);
+    glfwSetWindowSizeCallback(window, window_size_callback);
     init(window);
     while (!glfwWindowShouldClose(window)) {
         display(window, glfwGetTime());

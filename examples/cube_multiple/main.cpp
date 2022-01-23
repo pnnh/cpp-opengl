@@ -79,23 +79,33 @@ void display(GLFWwindow *window, double currentTime) {
     // 构建视图矩阵、模型矩阵和视图-模型矩阵
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
 
-    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+    double tf;
+    for (int i = 0; i < 24; i++) {
+        tf = currentTime + i; // tf == "time factor(时间因子）“,声明为浮点类型
+        tMat = glm::translate(glm::mat4(1.0f),
+                              glm::vec3(sin(0.35f * tf) * 2.0f, cos(0.52f * tf) * 2.0f,
+                                        sin(0.7f * tf) * 2.0f));
+        rMat = glm::rotate(glm::mat4(1.0f), 1.75f * (float) tf, glm::vec3(0.0f, 1.0f, 0.0f));
+        rMat = glm::rotate(rMat, 1.75f * (float) tf, glm::vec3(1.0f, 0.0f, 0.0f));
+        rMat = glm::rotate(rMat, 1.75f * (float) tf, glm::vec3(0.0f, 0.0f, 1.0f)); // 用1.75来调整旋转速度
+        mMat = tMat * rMat;
 
-    mvMat = vMat * mMat;
+        mvMat = vMat * mMat;
 
-    // 将透视矩阵和MV矩阵复制给相应的统一变量
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+        // 将透视矩阵和MV矩阵复制给相应的统一变量
+        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
-    // 将VBO关联给顶点着色器中相应的顶点属性
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
+        // 将VBO关联给顶点着色器中相应的顶点属性
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(0);
 
-    // 调整OpenGL设置，绘制模型
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+        // 调整OpenGL设置，绘制模型
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 }
 
 
